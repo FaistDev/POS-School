@@ -17,7 +17,7 @@ public class Database {
     private static Database instance;
     private final Connection connection;
     
-    private final String dbName = "";
+    private final String dbName = "OnlineShop";
     private final String dbUsername = "postgres";
     private final String dbPassword = "postgres";
     
