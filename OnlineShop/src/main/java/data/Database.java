@@ -43,8 +43,8 @@ public class Database {
         connection = DriverManager.getConnection("jdbc:postgresql://localhost/" + dbName, dbUsername, dbPassword);
     }
 
-    public boolean checkLoginCredentials(String username, String password) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
-        PreparedStatement ps = connection.prepareStatement("SELECT * FROM cusomer WHERE username=? AND password=?");
+    public int checkLoginCredentials(String username, String password) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
+        PreparedStatement ps = connection.prepareStatement("SELECT id FROM cusomer WHERE username=? AND password=?");
 
         byte[] passwordHash = getMD5hash(password);
 
@@ -52,18 +52,22 @@ public class Database {
         ps.setBytes(1, passwordHash);
 
         ResultSet rs = ps.executeQuery();
+        
+        while(rs.next()){
+            return rs.getInt("id");
+        }
 
-        return getResultSetSize(rs) > 0;
+        return 0;
     }
 
-    private int getResultSetSize(ResultSet rs) throws SQLException {
+    /*private int getResultSetSize(ResultSet rs) throws SQLException {
         int size = 0;
         if (rs != null) {
             rs.last();
             size = rs.getRow();
         }
         return size;
-    }
+    }*/
 
     private byte[] getMD5hash(String value) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         byte[] bytesOfMessage = value.getBytes("UTF-8");

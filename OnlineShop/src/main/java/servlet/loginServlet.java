@@ -13,8 +13,10 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,14 +70,26 @@ public class loginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        String redirectURL = "/";
+        
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         
         try {
-            if(Database.getInstance().checkLoginCredentials(username,password)){
+            int customerID = Database.getInstance().checkLoginCredentials(username,password);
+            if(customerID!=0){
                 //Set userID as cookie
                 //Create token system and set token as cookie
+                Cookie c = new Cookie("customerID", ""+customerID);
+                response.addCookie(c);
+                redirectURL = "./orders.jsp";
+            }else{
+                redirectURL="./login.jsp";
+                request.setAttribute("errorMessage", "Wrong username or password");
             }
+            
+            RequestDispatcher rd = getServletContext().getRequestDispatcher(redirectURL);
+            rd.forward(request, response);
         } catch (SQLException ex) {
             Logger.getLogger(loginServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
