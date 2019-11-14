@@ -85,7 +85,7 @@ public class loginServlet extends HttpServlet {
                 redirectURL = "./orders.jsp";
             }else{
                 redirectURL="./login.jsp";
-                request.setAttribute("errorMessage", "Wrong username or password");
+                request.setAttribute("error", "Wrong username or password");
             }
             
             RequestDispatcher rd = getServletContext().getRequestDispatcher(redirectURL);

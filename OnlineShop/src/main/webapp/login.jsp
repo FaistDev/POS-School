@@ -20,7 +20,7 @@ and open the template in the editor.
     <body>
         <h1>Login</h1>
         
-        <p id="errorMessage"></p>
+        <p id="errorMessage"><% request.getAttribute("error"); %></p>
         
         <form action="./loginServlet" method="post">
             <div class="form-element">
