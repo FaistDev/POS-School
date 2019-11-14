@@ -44,12 +44,12 @@ public class Database {
     }
 
     public int checkLoginCredentials(String username, String password) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
-        PreparedStatement ps = connection.prepareStatement("SELECT id FROM cusomer WHERE username=? AND password=?");
+        PreparedStatement ps = connection.prepareStatement("SELECT ID FROM customer WHERE username=? AND password=?");
 
-        byte[] passwordHash = getMD5hash(password);
+        String passwordHash = getMD5hash(password);
 
-        ps.setString(0, username);
-        ps.setBytes(1, passwordHash);
+        ps.setString(1, username);
+        ps.setString(2, passwordHash);
 
         ResultSet rs = ps.executeQuery();
         
@@ -69,11 +69,18 @@ public class Database {
         return size;
     }*/
 
-    private byte[] getMD5hash(String value) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private String getMD5hash(String value) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        StringBuilder builder = new StringBuilder();
+        
         byte[] bytesOfMessage = value.getBytes("UTF-8");
-
+        
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] thedigest = md.digest(bytesOfMessage);
-        return thedigest;
+        
+        for(byte b: thedigest) {
+            builder.append(Integer.toString( ( b & 0xff ) + 0x100, 16).substring( 1 ));
+        }
+        
+        return builder.toString();
     }
 }
