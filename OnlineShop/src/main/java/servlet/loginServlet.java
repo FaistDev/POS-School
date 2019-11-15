@@ -78,13 +78,11 @@ public class loginServlet extends HttpServlet {
         try {
             int customerID = Database.getInstance().checkLoginCredentials(username,password);
             if(customerID!=0){
-                //Set userID as cookie
-                //Create token system and set token as cookie
-                Cookie c = new Cookie("customerID", ""+customerID);
-                response.addCookie(c);
-                redirectURL = "./orders.jsp";
+                request.getSession().setAttribute("customerID", customerID);
+                //System.out.println(request.getSession().getId());
+                redirectURL = "/orders.jsp";
             }else{
-                redirectURL="./login.jsp";
+                redirectURL="/login.jsp";
                 request.setAttribute("error", "Wrong username or password");
             }
             
