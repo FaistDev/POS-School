@@ -13,6 +13,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 /**
  *
@@ -82,5 +84,21 @@ public class Database {
         }
         
         return builder.toString();
+    }
+    
+    public ArrayList<Order> getOrders(int customerID) throws SQLException{
+        ArrayList<Order> orders = new ArrayList<>();
+        
+        PreparedStatement ps = connection.prepareStatement("SELECT id,orderdate,(SELECT SUM(article.price * position.amount) FROM position JOIN article ON article.ID=position.articleid WHERE position.orderid=ordering.id) total FROM ordering WHERE customerid=?");
+        
+        ps.setInt(1, customerID);
+
+        ResultSet rs = ps.executeQuery();
+        
+        while(rs.next()){
+            orders.add(new Order(rs.getInt("id"), customerID, rs.getDate("orderdate").toLocalDate(),rs.getDouble("total")));
+        }
+        
+        return orders;
     }
 }

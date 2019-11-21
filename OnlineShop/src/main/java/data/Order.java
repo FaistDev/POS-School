@@ -12,26 +12,34 @@ import java.time.LocalDate;
  * @author Ben
  */
 public class Order {
-    private int id;
+    private int orderid;
     private int customerid;
     private LocalDate orderdate;
+    private double totalPrice;
 
-    public Order(int id, int customerid, LocalDate orderdate) {
-        this.id = id;
+    public Order(int orderID, int customerid, LocalDate orderdate, double totalPrice) {
+        this.orderid = orderID;
         this.customerid = customerid;
         this.orderdate = orderdate;
+        this.totalPrice = totalPrice;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public int getOrderid() {
+        return orderid;
+    }
+
+    public void setOrderid(int orderid) {
+        this.orderid = orderid;
     }
     
-    
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getCustomerid() {
         return customerid;
     }
