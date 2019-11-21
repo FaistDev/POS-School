@@ -6,17 +6,16 @@
 package servlet;
 
 import data.Database;
+import data.Order;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Ben
  */
-@WebServlet(name = "loginServlet", urlPatterns = {"/loginServlet"})
-public class loginServlet extends HttpServlet {
+@WebServlet(name = "ordersServlet", urlPatterns = {"/ordersServlet"})
+public class ordersServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,7 +39,18 @@ public class loginServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+        try ( PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            /*out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ordersServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet ordersServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");*/
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -55,9 +65,40 @@ public class loginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        int customerID=0;
+        try{
+            Object customerIDobj = request.getSession().getAttribute("customerID");
+        if(customerIDobj!=null){
+           customerID = (int) customerIDobj;
+        }
+        }catch(Exception e){
+            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
+        }
+        
+        
+        if(customerID!=0){
+            try {
+                ArrayList<Order> orders = Database.getInstance().getOrders(customerID);
+                request.setAttribute("orders", orders);
+                
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/orders.jsp");
+                rd.forward(request, response);
+            } catch (SQLException ex) {
+                Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }catch(Exception e){
+                Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }else{
+            request.setAttribute("error", "Wrong username or password");
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.jsp");
+            rd.forward(request, response);
+        }
+        
+        
+        
     }
-
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -69,30 +110,7 @@ public class loginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        //String redirectURL = "/";
-        
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        
-        try {
-            int customerID = Database.getInstance().checkLoginCredentials(username,password);
-            if(customerID!=0){
-                request.getSession().setAttribute("customerID", customerID);
-                //System.out.println(request.getSession().getId());
-                //redirectURL = "/ordersServlet";
-                response.sendRedirect("ordersServlet");
-            }else{
-                //redirectURL="/login.jsp";
-                request.setAttribute("error", "Wrong username or password");
-                RequestDispatcher rd = getServletContext().getRequestDispatcher("login.jsp");
-                rd.forward(request, response);
-            }
-            
-            
-        } catch (SQLException | UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            Logger.getLogger(loginServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**
