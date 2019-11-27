@@ -14,6 +14,9 @@
     </head>
     <body>
         <h1>Your orders</h1>
+        <form action="/newOrderServlet">
+            <button>New order</button>
+        </form>
         <table>
             <tr>
                 <th>OrderID</th>
