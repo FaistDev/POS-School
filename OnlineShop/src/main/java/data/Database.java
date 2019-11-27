@@ -29,7 +29,7 @@ public class Database {
     private final String dbUsername = "postgres";
     private final String dbPassword = "postgres";
 
-    public static Database getInstance() throws SQLException {
+    public static synchronized Database getInstance() throws SQLException {
         if (instance == null) {
             instance = new Database();
         }
