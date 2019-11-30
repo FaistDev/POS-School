@@ -76,6 +76,9 @@
                     
                 </table>
             </div>
+            <form method="get" action="saveOrderServlet">
+                <button>Save order</button>
+            </form>
         </div>
     </body>
 </html>

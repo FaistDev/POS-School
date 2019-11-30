@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -54,8 +55,8 @@ public class Database {
         ps.setString(2, passwordHash);
 
         ResultSet rs = ps.executeQuery();
-        
-        while(rs.next()){
+
+        while (rs.next()) {
             return rs.getInt("id");
         }
 
@@ -70,105 +71,131 @@ public class Database {
         }
         return size;
     }*/
-
     private String getMD5hash(String value) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         StringBuilder builder = new StringBuilder();
-        
+
         byte[] bytesOfMessage = value.getBytes("UTF-8");
-        
+
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] thedigest = md.digest(bytesOfMessage);
-        
-        for(byte b: thedigest) {
-            builder.append(Integer.toString( ( b & 0xff ) + 0x100, 16).substring( 1 ));
+
+        for (byte b : thedigest) {
+            builder.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
         }
-        
+
         return builder.toString();
     }
-    
-    public ArrayList<Order> getOrders(int customerID) throws SQLException{
+
+    public ArrayList<Order> getOrders(int customerID) throws SQLException {
         ArrayList<Order> orders = new ArrayList<>();
-        
+
         PreparedStatement ps = connection.prepareStatement("SELECT id,orderdate,(SELECT SUM(article.price * position.amount) FROM position JOIN article ON article.ID=position.articleid WHERE position.orderid=ordering.id) total FROM ordering WHERE customerid=?");
-        
+
         ps.setInt(1, customerID);
 
         ResultSet rs = ps.executeQuery();
-        
-        while(rs.next()){
-            orders.add(new Order(rs.getInt("id"), customerID, rs.getDate("orderdate").toLocalDate(),rs.getDouble("total")));
+
+        while (rs.next()) {
+            orders.add(new Order(rs.getInt("id"), customerID, rs.getDate("orderdate").toLocalDate(), rs.getDouble("total")));
         }
-        
+
         return orders;
     }
-    
-    public ArrayList<Article> getArticles() throws SQLException{
+
+    public ArrayList<Article> getArticles() throws SQLException {
         ArrayList<Article> articles = new ArrayList<>();
-        
+
         PreparedStatement ps = connection.prepareStatement("SELECT id, name, price FROM article");
-        
+
         ResultSet rs = ps.executeQuery();
-        
-        while(rs.next()){
+
+        while (rs.next()) {
             articles.add(new Article(rs.getInt("id"), rs.getString("name"), rs.getDouble("price")));
         }
-        
+
         return articles;
     }
-    
-    public ArrayList<Card> getCard(int customerid) throws SQLException{
+
+    public ArrayList<Card> getCard(int customerid) throws SQLException {
         ArrayList<Card> cards = new ArrayList<>();
-        
+
         PreparedStatement ps = connection.prepareStatement("SELECT ct.id cid, ct.firstname,ct.lastname,ct.password,ct.username, a.id aid, a.name, a.price, c.amount FROM card c JOIN customer ct ON c.customerid = ct.id JOIN article a ON c.articleid = a.id WHERE c.customerid=?");
-        
+
         ps.setInt(1, customerid);
-        
+
         ResultSet rs = ps.executeQuery();
-        
-        while(rs.next()){
-            cards.add(new Card(new Customer(rs.getInt("cid"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("password"), rs.getString("username")), new Article(rs.getInt("aid"), rs.getString("name"), rs.getDouble("price")),rs.getInt("amount")));
+
+        while (rs.next()) {
+            cards.add(new Card(new Customer(rs.getInt("cid"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("password"), rs.getString("username")), new Article(rs.getInt("aid"), rs.getString("name"), rs.getDouble("price")), rs.getInt("amount")));
         }
-        
+
         return cards;
     }
-    
-    public void addToCard(int customerid, int articleid, int amount) throws SQLException{
+
+    public void addToCard(int customerid, int articleid, int amount) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("INSERT INTO public.card(customerid, articleid, amount) VALUES(?, ?, ?) ON CONFLICT (customerid,articleid) DO UPDATE SET amount=card.amount+1");
-        
+
         ps.setInt(1, customerid);
         ps.setInt(2, articleid);
         ps.setInt(3, amount);
-        
+
         ps.executeUpdate();
     }
-    
-    public void deleteFromCard(int customerid, int articleid, int amount) throws SQLException, Exception{
+
+    public void deleteFromCard(int customerid, int articleid, int amount) throws SQLException, Exception {
         PreparedStatement ps = connection.prepareStatement("SELECT amount FROM public.card WHERE customerid=? AND articleid=?;");
-        
+
         ps.setInt(1, customerid);
         ps.setInt(2, articleid);
-        
+
         ResultSet rs = ps.executeQuery();
-        PreparedStatement updateOrDelete=null;
-        while(rs.next()){
-            if(rs.getInt("amount")>amount){
-                updateOrDelete= connection.prepareStatement("UPDATE public.card SET amount=card.amount-? WHERE customerid=? AND articleid=?;");
+        PreparedStatement updateOrDelete = null;
+        while (rs.next()) {
+            if (rs.getInt("amount") > amount) {
+                updateOrDelete = connection.prepareStatement("UPDATE public.card SET amount=card.amount-? WHERE customerid=? AND articleid=?;");
                 updateOrDelete.setInt(1, amount);
                 updateOrDelete.setInt(2, customerid);
                 updateOrDelete.setInt(3, articleid);
-            }else{
-                updateOrDelete= connection.prepareStatement("DELETE FROM public.card WHERE customerid=? AND articleid=?;");
-                
+            } else {
+                updateOrDelete = connection.prepareStatement("DELETE FROM public.card WHERE customerid=? AND articleid=?;");
+
                 updateOrDelete.setInt(1, customerid);
                 updateOrDelete.setInt(2, articleid);
             }
         }
-        
-        if(updateOrDelete==null){
+
+        if (updateOrDelete == null) {
             throw new Exception("No card entry found");
         }
-        
+
         updateOrDelete.executeUpdate();
+
+    }
+
+    public void createNewOrder(int customerid) throws SQLException, Exception {
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO public.ordering(customerid, orderdate) VALUES (?,CURRENT_DATE);", Statement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, customerid);
+
+        ps.executeUpdate();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        int last_inserted_id=0;
+        if (rs.next()) {
+            last_inserted_id = rs.getInt(1);
+        }
         
+        if(last_inserted_id==0){
+            throw new Exception("Order creation failed");
+        }
+        
+        PreparedStatement ps2 = connection.prepareStatement("INSERT INTO public.\"position\"(orderid, articleid, amount) SELECT ?,articleid,amount FROM card WHERE customerid=?;");
+        ps2.setInt(1, last_inserted_id);
+        ps2.setInt(2, customerid);
+        ps2.executeUpdate();
+        
+        PreparedStatement ps3 = connection.prepareStatement("DELETE FROM public.card WHERE customerid=?;");
+
+        ps3.setInt(1, customerid);
+        ps3.executeUpdate();
     }
 }
