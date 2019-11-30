@@ -53,7 +53,7 @@
                             <td>${article.id}</td>
                             <td>${article.name}</td>
                             <td>${String.format("%.2f",article.price)} €</td>
-                            <td class="actionButton"><button>+</button></td>
+                            <td class="actionButton"><button onclick="addToCard(${article.id});">+</button></td>
                         </tr>
                     </c:forEach>
                     </tr>

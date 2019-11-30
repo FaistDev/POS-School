@@ -133,12 +133,42 @@ public class Database {
     }
     
     public void addToCard(int customerid, int articleid, int amount) throws SQLException{
-        PreparedStatement ps = connection.prepareStatement("INSERT INTO public.card(customerid, articleid, amount) VALUES(?, ?, ?)");
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO public.card(customerid, articleid, amount) VALUES(?, ?, ?) ON CONFLICT (customerid,articleid) DO UPDATE SET amount=card.amount+1");
         
         ps.setInt(1, customerid);
         ps.setInt(2, articleid);
         ps.setInt(3, amount);
         
         ps.executeUpdate();
+    }
+    
+    public void deleteFromCard(int customerid, int articleid, int amount) throws SQLException, Exception{
+        PreparedStatement ps = connection.prepareStatement("SELECT amount FROM public.card WHERE customerid=? AND articleid=?;");
+        
+        ps.setInt(1, customerid);
+        ps.setInt(2, articleid);
+        
+        ResultSet rs = ps.executeQuery();
+        PreparedStatement updateOrDelete=null;
+        while(rs.next()){
+            if(rs.getInt("amount")>amount){
+                updateOrDelete= connection.prepareStatement("UPDATE public.card SET amount=card.amount-? WHERE customerid=? AND articleid=?;");
+                updateOrDelete.setInt(1, amount);
+                updateOrDelete.setInt(2, customerid);
+                updateOrDelete.setInt(3, articleid);
+            }else{
+                updateOrDelete= connection.prepareStatement("DELETE FROM public.card WHERE customerid=? AND articleid=?;");
+                
+                updateOrDelete.setInt(1, customerid);
+                updateOrDelete.setInt(2, articleid);
+            }
+        }
+        
+        if(updateOrDelete==null){
+            throw new Exception("No card entry found");
+        }
+        
+        updateOrDelete.executeUpdate();
+        
     }
 }
