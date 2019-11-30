@@ -101,4 +101,44 @@ public class Database {
         
         return orders;
     }
+    
+    public ArrayList<Article> getArticles() throws SQLException{
+        ArrayList<Article> articles = new ArrayList<>();
+        
+        PreparedStatement ps = connection.prepareStatement("SELECT id, name, price FROM article");
+        
+        ResultSet rs = ps.executeQuery();
+        
+        while(rs.next()){
+            articles.add(new Article(rs.getInt("id"), rs.getString("name"), rs.getDouble("price")));
+        }
+        
+        return articles;
+    }
+    
+    public ArrayList<Card> getCard(int customerid) throws SQLException{
+        ArrayList<Card> cards = new ArrayList<>();
+        
+        PreparedStatement ps = connection.prepareStatement("SELECT ct.id cid, ct.firstname,ct.lastname,ct.password,ct.username, a.id aid, a.name, a.price, c.amount FROM card c JOIN customer ct ON c.customerid = ct.id JOIN article a ON c.articleid = a.id WHERE c.customerid=?");
+        
+        ps.setInt(1, customerid);
+        
+        ResultSet rs = ps.executeQuery();
+        
+        while(rs.next()){
+            cards.add(new Card(new Customer(rs.getInt("cid"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("password"), rs.getString("username")), new Article(rs.getInt("aid"), rs.getString("name"), rs.getDouble("price")),rs.getInt("amount")));
+        }
+        
+        return cards;
+    }
+    
+    public void addToCard(int customerid, int articleid, int amount) throws SQLException{
+        PreparedStatement ps = connection.prepareStatement("INSERT INTO public.card(customerid, articleid, amount) VALUES(?, ?, ?)");
+        
+        ps.setInt(1, customerid);
+        ps.setInt(2, articleid);
+        ps.setInt(3, amount);
+        
+        ps.executeUpdate();
+    }
 }
