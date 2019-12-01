@@ -198,4 +198,22 @@ public class Database {
         ps3.setInt(1, customerid);
         ps3.executeUpdate();
     }
+    
+    public ArrayList<Position> getOrderPositions(int orderid, int customerid) throws SQLException {
+        ArrayList<Position> positions = new ArrayList<>();
+
+        PreparedStatement ps = connection.prepareStatement("SELECT ordering.orderdate,(SELECT SUM(position.amount * article.price) FROM public.ordering JOIN position ON ordering.id=position.orderid JOIN article ON article.id=position.articleid WHERE ordering.id=?) total,article.id,article.name,article.price, amount, article.price * amount singletotal FROM public.\"position\" JOIN article ON position.articleid=article.id JOIN ordering ON \"position\".orderid=ordering.id WHERE ordering.id=? AND ordering.customerid=?;");
+
+        ps.setInt(1, orderid);
+        ps.setInt(2, orderid);
+        ps.setInt(3, customerid);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            positions.add(new Position(new Order(orderid, customerid, rs.getDate("orderdate").toLocalDate(), rs.getDouble("total")),new Article(rs.getInt("id"), rs.getString("name"), rs.getDouble("price")),rs.getInt("amount"),rs.getDouble("singletotal")));
+        }
+
+        return positions;
+    }
 }

@@ -10,41 +10,35 @@ package data;
  * @author Ben
  */
 public class Position {
-    private int orderid;
-    private int articleid;
+    private Order order;
+    private Article article;
     private int amount;
+    private double total;
 
-    public Position(int orderid, int articleid, int amount) {
-        this.orderid = orderid;
-        this.articleid = articleid;
+    public Position(Order order, Article article, int amount, double total) {
+        this.order = order;
+        this.article = article;
         this.amount = amount;
-    }
-    
-    
-
-    public int getOrderid() {
-        return orderid;
+        this.total=total;
     }
 
-    public void setOrderid(int orderid) {
-        this.orderid = orderid;
+    public Order getOrder() {
+        return order;
     }
 
-    public int getArticleid() {
-        return articleid;
-    }
-
-    public void setArticleid(int articleid) {
-        this.articleid = articleid;
+    public Article getArticle() {
+        return article;
     }
 
     public int getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public double getTotal() {
+        return total;
     }
+
+    
     
     
 }

@@ -26,7 +26,6 @@ function getCard(){
                         var total = Number(parseFloat((obj[i].article.price)*(obj[i].amount)).toFixed(2)).toLocaleString('de');
                         output+= "<tr><td>"+obj[i].article.id+"</td><td>"+obj[i].article.name+"</td><td>"+price+" €</td><td>"+obj[i].amount+"</td><td>"+total+" €</td><td class='actionButton'><button onclick='deleteFromCard("+obj[i].article.id+");'>-</button></td></tr>";
                     }
-                    output+="</table>";
                     document.getElementById("selectedArticlesContent").innerHTML=output;
                 });
             });
