@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,7 +44,7 @@ public class deleteFromCardServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet deleteFromCardServlet</title>");            
+            out.println("<title>Servlet deleteFromCardServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet deleteFromCardServlet at " + request.getContextPath() + "</h1>");
@@ -64,8 +65,7 @@ public class deleteFromCardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        
+
     }
 
     /**
@@ -79,28 +79,26 @@ public class deleteFromCardServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         int articleid = Integer.parseInt(new BufferedReader(new InputStreamReader(request.getInputStream())).readLine());
         System.out.println("ArticleID=" + articleid);
-
-        int customerID = 0;
         try {
-            Object customerIDobj = request.getSession().getAttribute("customerID");
-            if (customerIDobj != null) {
-                customerID = (int) customerIDobj;
-            }
-        } catch (Exception e) {
-            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
-        }
+            int customerID = getCustomerID(request);
 
-        if (customerID != 0) {
-            try {
-                Database.getInstance().deleteFromCard(customerID, articleid, 1);
-            } catch (SQLException ex) {
-                Logger.getLogger(addToCardServlet.class.getName()).log(Level.SEVERE, null, ex);
-            } catch(Exception ex){
-                Logger.getLogger(addToCardServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Database.getInstance().deleteFromCard(customerID, articleid, 1);
+        } catch (Exception ex) {
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+            rd.forward(request, response);
+        }
+    }
+
+    private int getCustomerID(HttpServletRequest request) throws Exception {
+        Object customerIDobj = request.getSession().getAttribute("customerID");
+        if (customerIDobj != null) {
+            return (int) customerIDobj;
+        } else {
+            throw new Exception("No customer logged in");
         }
     }
 

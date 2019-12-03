@@ -41,7 +41,7 @@ public class newOrderServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try ( PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-           /* out.println("<!DOCTYPE html>");
+ /* out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet newOrderServlet</title>");            
@@ -65,20 +65,21 @@ public class newOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         try {
             ArrayList<Article> articles = Database.getInstance().getArticles();
-            
+
             request.setAttribute("articles", articles);
-            
+
             RequestDispatcher rd = getServletContext().getRequestDispatcher("/newOrder.jsp");
             rd.forward(request, response);
-            
+
         } catch (SQLException ex) {
-            Logger.getLogger(newOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+            rd.forward(request, response);
         }
-        
-        processRequest(request, response);
+
     }
 
     /**

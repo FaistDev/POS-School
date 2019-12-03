@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -20,7 +21,7 @@ and open the template in the editor.
     <body>
         <h1>Login</h1>
         
-        <p id="errorMessage"><% request.getAttribute("error"); %></p>
+        <p id="errorMessage">${requestScope.error}</p>
         
         <form action="./loginServlet" method="post">
             <div class="form-element">

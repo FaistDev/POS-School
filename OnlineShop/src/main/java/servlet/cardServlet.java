@@ -47,7 +47,7 @@ public class cardServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet cardServlet</title>");            
+            out.println("<title>Servlet cardServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet cardServlet at " + request.getContextPath() + "</h1>");
@@ -68,34 +68,34 @@ public class cardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        int customerID=0;
-        try{
-            Object customerIDobj = request.getSession().getAttribute("customerID");
-        if(customerIDobj!=null){
-           customerID = (int) customerIDobj;
+        try {
+            int customerID = getCustomerID(request);
+
+            ArrayList<Card> cards = Database.getInstance().getCard(customerID);
+            //Here to JSON
+            Gson gson = new Gson();
+            response.setContentType("application/json");
+
+            System.out.println("HELLO!:" + gson.toJson(cards));
+
+            OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream());
+            out.write(gson.toJson(cards));
+            out.flush();
+
+        } catch (Exception ex) {
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+            rd.forward(request, response);
         }
-        }catch(Exception e){
-            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
-        }
-        
-        
-        if(customerID!=0){
-            try {
-                ArrayList<Card> cards = Database.getInstance().getCard(customerID);
-                //Here to JSON
-                Gson gson = new Gson();
-                response.setContentType("application/json");
-                
-                System.out.println("HELLO!:"+gson.toJson(cards));
-                
-                OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream());
-                out.write(gson.toJson(cards));
-                out.flush();
-                
-            } catch (SQLException ex) {
-                Logger.getLogger(cardServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+    }
+
+    private int getCustomerID(HttpServletRequest request) throws Exception {
+        Object customerIDobj = request.getSession().getAttribute("customerID");
+        if (customerIDobj != null) {
+            return (int) customerIDobj;
+        } else {
+            throw new Exception("No customer logged in");
         }
     }
 

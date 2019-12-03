@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -47,7 +48,7 @@ public class getOrderDetailsServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet getOrderDetailsServlet</title>");            
+            out.println("<title>Servlet getOrderDetailsServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet getOrderDetailsServlet at " + request.getContextPath() + "</h1>");
@@ -82,40 +83,42 @@ public class getOrderDetailsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         int orderId = Integer.parseInt(new BufferedReader(new InputStreamReader(request.getInputStream())).readLine());
         System.out.println("ArticleID=" + orderId);
 
-        int customerID = 0;
         try {
-            Object customerIDobj = request.getSession().getAttribute("customerID");
-            if (customerIDobj != null) {
-                customerID = (int) customerIDobj;
+            int customerID = getCustomerID(request);
+
+            ArrayList<Position> orderPositons = Database.getInstance().getOrderPositions(orderId, customerID);
+
+            if (orderPositons.isEmpty()) {
+                //Error
+                throw new Exception("There are no positions");
             }
-        } catch (Exception e) {
-            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
+
+            Gson gson = new Gson();
+            response.setContentType("application/json");
+
+            OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream());
+            out.write(gson.toJson(orderPositons));
+            out.flush();
+
+        } catch (Exception ex) {
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+            rd.forward(request, response);
         }
 
-        if (customerID != 0) {
-            try {
-                ArrayList<Position> orderPositons = Database.getInstance().getOrderPositions(orderId, customerID);
-                
-                if(orderPositons.isEmpty()){
-                    //Error
-                }
-                
-                Gson gson = new Gson();
-                response.setContentType("application/json");
-                
-                OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream());
-                out.write(gson.toJson(orderPositons));
-                out.flush();
-            
-            } catch (SQLException ex) {
-                Logger.getLogger(getOrderDetailsServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    }
+
+    private int getCustomerID(HttpServletRequest request) throws Exception {
+        Object customerIDobj = request.getSession().getAttribute("customerID");
+        if (customerIDobj != null) {
+            return (int) customerIDobj;
+        } else {
+            throw new Exception("No customer logged in");
         }
-        
     }
 
     /**

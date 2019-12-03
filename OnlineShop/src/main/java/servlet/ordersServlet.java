@@ -41,7 +41,7 @@ public class ordersServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try ( PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            /*out.println("<!DOCTYPE html>");
+ /*out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet ordersServlet</title>");            
@@ -65,40 +65,30 @@ public class ordersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        int customerID=0;
-        try{
-            Object customerIDobj = request.getSession().getAttribute("customerID");
-        if(customerIDobj!=null){
-           customerID = (int) customerIDobj;
-        }
-        }catch(Exception e){
-            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
-        }
-        
-        
-        if(customerID!=0){
-            try {
-                ArrayList<Order> orders = Database.getInstance().getOrders(customerID);
-                request.setAttribute("orders", orders);
-                
-                RequestDispatcher rd = getServletContext().getRequestDispatcher("/orders.jsp");
-                rd.forward(request, response);
-            } catch (SQLException ex) {
-                Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }catch(Exception e){
-                Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }else{
-            request.setAttribute("error", "Wrong username or password");
-            RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.jsp");
+        try {
+            int customerID = getCustomerID(request);
+
+            ArrayList<Order> orders = Database.getInstance().getOrders(customerID);
+            request.setAttribute("orders", orders);
+
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/orders.jsp");
+            rd.forward(request, response);
+        } catch (Exception ex) {
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
             rd.forward(request, response);
         }
-        
-        
-        
     }
-    
+
+    private int getCustomerID(HttpServletRequest request) throws Exception {
+        Object customerIDobj = request.getSession().getAttribute("customerID");
+        if (customerIDobj != null) {
+            return (int) customerIDobj;
+        } else {
+            throw new Exception("No customer logged in");
+        }
+    }
+
     /**
      * Handles the HTTP <code>POST</code> method.
      *

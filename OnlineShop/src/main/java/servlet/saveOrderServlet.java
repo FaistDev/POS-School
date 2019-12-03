@@ -42,7 +42,7 @@ public class saveOrderServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet saveOrderServlet</title>");            
+            out.println("<title>Servlet saveOrderServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet saveOrderServlet at " + request.getContextPath() + "</h1>");
@@ -63,30 +63,28 @@ public class saveOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        int customerID = 0;
         try {
-            Object customerIDobj = request.getSession().getAttribute("customerID");
-            if (customerIDobj != null) {
-                customerID = (int) customerIDobj;
-            }
-        } catch (Exception e) {
-            Logger.getLogger(ordersServlet.class.getName()).log(Level.SEVERE, null, e);
+            int customerID = getCustomerID(request);
+
+            Database.getInstance().createNewOrder(customerID);
+
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/ordersServlet");
+            rd.forward(request, response);
+        } catch (Exception ex) {
+            request.setAttribute("message", ex.getMessage());
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+            rd.forward(request, response);
         }
 
-        if (customerID != 0) {
-            try {
-                Database.getInstance().createNewOrder(customerID);
-                
-                RequestDispatcher rd = getServletContext().getRequestDispatcher("/ordersServlet");
-                rd.forward(request, response);
-            } catch (SQLException ex) {
-                Logger.getLogger(saveOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-            } catch(Exception ex){
-                Logger.getLogger(saveOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    }
+
+    private int getCustomerID(HttpServletRequest request) throws Exception {
+        Object customerIDobj = request.getSession().getAttribute("customerID");
+        if (customerIDobj != null) {
+            return (int) customerIDobj;
+        } else {
+            throw new Exception("No customer logged in");
         }
-        
     }
 
     /**

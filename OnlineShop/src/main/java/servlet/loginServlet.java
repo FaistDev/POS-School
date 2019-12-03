@@ -85,13 +85,15 @@ public class loginServlet extends HttpServlet {
             }else{
                 //redirectURL="/login.jsp";
                 request.setAttribute("error", "Wrong username or password");
-                RequestDispatcher rd = getServletContext().getRequestDispatcher("login.jsp");
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.jsp");
                 rd.forward(request, response);
             }
             
             
         } catch (SQLException | UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            Logger.getLogger(loginServlet.class.getName()).log(Level.SEVERE, null, ex);
+            request.setAttribute("message", ex.getMessage());
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/error.jsp");
+                rd.forward(request, response);
         }
     }
 
