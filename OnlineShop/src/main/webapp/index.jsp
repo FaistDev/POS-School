@@ -9,10 +9,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Ben´s Domain Shop</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Ben´s Domain Shop</h1>
+        <h3>Welcome to my shop</h3>
          <p>Please login <a href="login.jsp">here</a></p>
     </body>
 </html>

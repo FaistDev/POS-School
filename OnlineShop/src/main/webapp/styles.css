@@ -1,0 +1,60 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 03.12.2019, 10:51:44
+    Author     : Ben
+*/
+
+table {
+    border: solid 2px black;
+    border-collapse: collapse;
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 25px;
+}
+th,td {
+    border: solid 2px black;
+}
+.orderItem:hover {
+    background-color: black;
+    color: white;
+}
+#orderDetails {
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 25px;
+    display: none;
+}
+#orderDetails table {
+    width: 100%;
+}
+.selectedOrder {
+    background: grey;
+    color: white;
+}
+.container {
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 15px;
+}
+.container div {
+    width: 45%;
+    display: inline-block;
+}
+.newOrderTable {
+    width: 100%;
+    border: solid 1px black;
+    border-collapse: collapse;
+}
+.newOrderTable tr, .newOrderTable td,.newOrderTable th {
+    border: solid 1px black;
+}
+.actionButton {
+    text-align: center;
+}
+.form-element {
+        padding: 10px;
+}

@@ -11,37 +11,16 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script src="ordering.js"></script>
+        <link href="styles.css" rel="stylesheet" type="text/css"/>
         <title>New order</title>
     </head>
-    <style>
-        .container {
-            width: 90%;
-            margin: 0 auto;
-            margin-top: 15px;
-        }
-        .container div {
-            width: 45%;
-            display: inline-block;
-        }
-        table {
-            width: 100%;
-            border: solid 1px black;
-            border-collapse: collapse;
-        }
-        tr,td,th {
-            border: solid 1px black;
-        }
-        .actionButton {
-            text-align: center;
-        }
-    </style>
     <body>
         <h1>New order</h1>
        
         <div class="container">
             <div>
                 <h3>Available articles</h3>
-                <table>
+                <table class="newOrderTable">
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
@@ -61,7 +40,7 @@
             </div>
             <div>
                 <h3>Selected articles</h3>
-                <table>
+                <table class="newOrderTable">
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
