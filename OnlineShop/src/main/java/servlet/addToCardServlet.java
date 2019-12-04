@@ -70,7 +70,7 @@ public class addToCardServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>POST</code> method.
-     *
+     * Adds an article to customers card
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -94,6 +94,12 @@ public class addToCardServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Gets customerID from Session API
+     * @param request 
+     * @return customerID 
+     * @throws Exception  
+     */
     private int getCustomerID(HttpServletRequest request) throws Exception {
         Object customerIDobj = request.getSession().getAttribute("customerID");
         if (customerIDobj != null) {

@@ -6,6 +6,10 @@
 
 getCard();
 
+/**
+ * Fetches the actual card
+ * @returns {undefined} 
+ */
 function getCard(){
     fetch('./cardServlet',
             {
@@ -31,6 +35,11 @@ function getCard(){
             });
 }
 
+/**
+ * Adds something to card, if it already exists in card, the amount will be increased
+ * @param {type} articleid
+ * @returns {undefined} 
+ */
 function addToCard(articleid){
     fetch('./addToCardServlet',
             {
@@ -46,6 +55,11 @@ function addToCard(articleid){
             });
 }
 
+/**
+ * Deletes an element from card, if the amount to delete is bigger than the amount in card, the entry will be deleted; if not than the amount will be decreased
+ * @param {type} articleid 
+ * @returns {undefined} 
+ */
 function deleteFromCard(articleid){
     fetch('./deleteFromCardServlet',
             {
@@ -61,6 +75,12 @@ function deleteFromCard(articleid){
             });
 }
 
+/**
+ * Gets positions for an specifc order
+ * @param {type} orderid 
+ * @param {type} element 
+ * @returns {undefined} 
+ */
 function getOrderDetails(orderid, element) {
         document.getElementById("orderDetails").style.display="block";
         

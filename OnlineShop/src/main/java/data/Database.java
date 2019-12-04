@@ -46,6 +46,15 @@ public class Database {
         connection = DriverManager.getConnection("jdbc:postgresql://localhost/" + dbName, dbUsername, dbPassword);
     }
 
+    /**
+     * Check if a user with a password exists, and return the userID; if no user exists, return 0
+     * @param username username
+     * @param password password
+     * @return customerID customerID
+     * @throws SQLException SQLException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+     */
     public int checkLoginCredentials(String username, String password) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
         PreparedStatement ps = connection.prepareStatement("SELECT ID FROM customer WHERE username=? AND password=?");
 
@@ -71,6 +80,14 @@ public class Database {
         }
         return size;
     }*/
+    
+    /**
+     * Convert a string to a MD5-Hash 
+     * @param value value
+     * @return MD5-Hash MD5-Hash
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+     */
     private String getMD5hash(String value) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         StringBuilder builder = new StringBuilder();
 
@@ -86,6 +103,12 @@ public class Database {
         return builder.toString();
     }
 
+    /**
+     * Returns an ArrayList with orders for a specifc customer 
+     * @param customerID customerID
+     * @return orders orders
+     * @throws SQLException SQLException
+     */
     public ArrayList<Order> getOrders(int customerID) throws SQLException {
         ArrayList<Order> orders = new ArrayList<>();
 
@@ -102,6 +125,11 @@ public class Database {
         return orders;
     }
 
+    /**
+     * Returns all articles 
+     * @return articles articles
+     * @throws SQLException SQLException
+     */
     public ArrayList<Article> getArticles() throws SQLException {
         ArrayList<Article> articles = new ArrayList<>();
 
@@ -116,6 +144,12 @@ public class Database {
         return articles;
     }
 
+    /**
+     * Returns customers card 
+     * @param customerid customerid
+     * @return cardpositions cardpositions
+     * @throws SQLException SQLException
+     */
     public ArrayList<Card> getCard(int customerid) throws SQLException {
         ArrayList<Card> cards = new ArrayList<>();
 
@@ -132,6 +166,13 @@ public class Database {
         return cards;
     }
 
+    /**
+     * Adds something to customers card, if it already is in card, the amount will be increased
+     * @param customerid customerid
+     * @param articleid articleid
+     * @param amount amount
+     * @throws SQLException SQLException 
+     */
     public void addToCard(int customerid, int articleid, int amount) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("INSERT INTO public.card(customerid, articleid, amount) VALUES(?, ?, ?) ON CONFLICT (customerid,articleid) DO UPDATE SET amount=card.amount+1");
 
@@ -142,6 +183,14 @@ public class Database {
         ps.executeUpdate();
     }
 
+    /**
+     * Deletes something from card, if the amount in card is smaller than the amount that will be deleted, the cardposition will be deleted
+     * @param customerid customerid
+     * @param articleid articleid
+     * @param amount amount
+     * @throws SQLException SQLException
+     * @throws Exception Exception
+     */
     public void deleteFromCard(int customerid, int articleid, int amount) throws SQLException, Exception {
         PreparedStatement ps = connection.prepareStatement("SELECT amount FROM public.card WHERE customerid=? AND articleid=?;");
 
@@ -172,6 +221,12 @@ public class Database {
 
     }
 
+    /**
+     * Insert a new order for a specifc customer and clear customers card 
+     * @param customerid customerid
+     * @throws SQLException SQLException
+     * @throws Exception Exception
+     */
     public void createNewOrder(int customerid) throws SQLException, Exception {
         PreparedStatement ps = connection.prepareStatement("INSERT INTO public.ordering(customerid, orderdate) VALUES (?,CURRENT_DATE);", Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, customerid);
@@ -199,6 +254,13 @@ public class Database {
         ps3.executeUpdate();
     }
     
+    /**
+     * Returns order positions for an specifc order; check if order is owned by customer
+     * @param orderid orderid
+     * @param customerid customerid
+     * @return order-positions order-positions
+     * @throws SQLException SQLException
+     */
     public ArrayList<Position> getOrderPositions(int orderid, int customerid) throws SQLException {
         ArrayList<Position> positions = new ArrayList<>();
 

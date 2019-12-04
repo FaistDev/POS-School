@@ -74,7 +74,7 @@ public class getOrderDetailsServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>POST</code> method.
-     *
+     * Get order positions
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -112,6 +112,12 @@ public class getOrderDetailsServlet extends HttpServlet {
 
     }
 
+    /**
+     * Gets customerID from Session API 
+     * @param request 
+     * @return customerid 
+     * @throws Exception  
+     */
     private int getCustomerID(HttpServletRequest request) throws Exception {
         Object customerIDobj = request.getSession().getAttribute("customerID");
         if (customerIDobj != null) {

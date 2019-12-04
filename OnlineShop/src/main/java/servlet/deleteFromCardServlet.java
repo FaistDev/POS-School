@@ -56,7 +56,7 @@ public class deleteFromCardServlet extends HttpServlet {
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
-     *
+     * 
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -70,7 +70,7 @@ public class deleteFromCardServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>POST</code> method.
-     *
+     * Delete from card
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -93,6 +93,12 @@ public class deleteFromCardServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Gets customerID from Session API 
+     * @param request 
+     * @return 
+     * @throws Exception  
+     */
     private int getCustomerID(HttpServletRequest request) throws Exception {
         Object customerIDobj = request.getSession().getAttribute("customerID");
         if (customerIDobj != null) {
